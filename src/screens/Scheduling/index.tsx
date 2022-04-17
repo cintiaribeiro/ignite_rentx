@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
 import { useTheme } from 'styled-components';
 import { useNavigation } from '@react-navigation/native';
 
 import { BackButton } from '../../components/BackButton';
 import { Button } from '../../components/Button';
-import { Calendar } from '../../components/Calendar';
+import { Calendar, DayProps, generateInterval } from '../../components/Calendar';
 
 import ArrowSvg from '../../assets/arrow.svg';
 
@@ -22,6 +22,8 @@ import{
 } from './styles';
 
 export function Scheduling(){
+
+    const[lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps)
     
     const theme = useTheme();
     
@@ -30,6 +32,26 @@ export function Scheduling(){
     function handleConfirm(){
         navigator.navigate("SchedulingDetails");
     }
+    
+    function handleBack(){
+        navigator.goBack();
+    }
+
+    function handleChangeDate(date: DayProps){
+        let start = !lastSelectedDate.timestamp ? date : lastSelectedDate.timestamp;
+        let end = date;
+
+        if(start.timestamp > end.timestamp ){
+            start = end;
+            end = start;
+        }
+
+        setLastSelectedDate(end);
+        
+        const interval = generateInterval(start, end);
+       
+    }
+
     return(
         <Container>
             <StatusBar
@@ -39,7 +61,7 @@ export function Scheduling(){
             />
             <Header>
                 <BackButton 
-                    onPress={() =>{}} 
+                    onPress={handleBack} 
                     color={theme.colors.shape}
                 />
                 <Title>
@@ -63,10 +85,16 @@ export function Scheduling(){
                 </RentalPeriod>
             </Header>
             <Content>
-                <Calendar/>
+                <Calendar
+                   markedDates={{}}
+                   onDayPress={handleChangeDate} 
+                />
             </Content>
             <Footer>
-                <Button title="Confirmar" onPress={handleConfirm}/>
+                <Button 
+                    title="Confirmar" 
+                    onPress={handleConfirm}
+                />
             </Footer>
         </Container>
     )
