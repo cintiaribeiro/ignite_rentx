@@ -5,6 +5,6 @@ export function getPlataformDate(date: Date){
   if(Platform.OS === 'ios'){
     return addDays(date, 1);
   }else{
-    return addDays(date, 1);
+    return date;
   }
 }

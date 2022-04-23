@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { BackButton } from '../../components/BackButton';
 import { Button } from '../../components/Button';
-import { Calendar, DayProps, generateInterval } from '../../components/Calendar';
+import { Calendar, DayProps, generateInterval, MarketDateProps } from '../../components/Calendar';
 
 import ArrowSvg from '../../assets/arrow.svg';
 
@@ -23,7 +23,8 @@ import{
 
 export function Scheduling(){
 
-    const[lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps)
+    const[lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps);
+    const[marketDates, setMarketDates] = useState<MarketDateProps>({} as MarketDateProps);
     
     const theme = useTheme();
     
@@ -38,7 +39,7 @@ export function Scheduling(){
     }
 
     function handleChangeDate(date: DayProps){
-        let start = !lastSelectedDate.timestamp ? date : lastSelectedDate.timestamp;
+        let start = !lastSelectedDate.timestamp ? date : lastSelectedDate;
         let end = date;
 
         if(start.timestamp > end.timestamp ){
@@ -49,7 +50,8 @@ export function Scheduling(){
         setLastSelectedDate(end);
         
         const interval = generateInterval(start, end);
-       
+        
+        setMarketDates(interval);
     }
 
     return(
@@ -86,7 +88,7 @@ export function Scheduling(){
             </Header>
             <Content>
                 <Calendar
-                   markedDates={{}}
+                   markedDates={marketDates}
                    onDayPress={handleChangeDate} 
                 />
             </Content>
