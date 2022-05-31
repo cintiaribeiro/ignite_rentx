@@ -33,12 +33,12 @@ interface Params {
 export function CarDetails(){
 
     const navigator = useNavigation<any>();
-    const route = useRoute();
 
+    const route = useRoute();
     const { car } = route.params as Params;
 
     function handleConfirmRental(){
-        navigator.navigate("Scheduling");
+        navigator.navigate("Scheduling", { car });
     }
 
     function handleBack(){

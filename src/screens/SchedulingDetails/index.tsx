@@ -49,6 +49,10 @@ export function SchedulingDetails(){
 
     const navigator = useNavigation<any>();
 
+    function handleBack(){
+        navigator.goBack();
+    }
+
     function handleComplete(){
         navigator.navigate("SchedulingComplete");
     }
@@ -57,7 +61,9 @@ export function SchedulingDetails(){
         <Container>
 
             <Header>
-                <BackButton onPress={() => {}} />
+                <BackButton 
+                    onPress={handleBack} 
+                />
             </Header>
 
             <CarImage>
