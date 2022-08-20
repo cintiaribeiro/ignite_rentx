@@ -1,9 +1,19 @@
 import React , {useEffect, useState} from 'react';
-import { StatusBar } from 'react-native';
+import { ImageBackground, StatusBar, StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { useTheme } from 'styled-components';
+import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
+
+import Animated, { 
+	useAnimatedStyle, 
+	useSharedValue, 
+	useAnimatedGestureHandler,
+	withSpring 
+} from 'react-native-reanimated';
+
+const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 import api from "../../services/api";
 import { CarDTOS } from "../../dtos/CarDTOS";
@@ -15,80 +25,133 @@ import Logo from '../../assets/logo.svg';
 
 
 import{
-    Container,
-    Header,
-    HeaderContent,
-    TotalCars,
-    CarList,
-    MyCarsButton
+	Container,
+	Header,
+	HeaderContent,
+	TotalCars,
+	CarList,
+	MyCarsButton
 } from './styles';
 
 export function Home(){
 
-    const[cars, setCars] = useState<CarDTOS[]>([]);
-    const[loading, setLoading] = useState(true);
-    const navigation = useNavigation<any>( );
+	const[cars, setCars] = useState<CarDTOS[]>([]);
+	const[loading, setLoading] = useState(true);
+	const navigation = useNavigation<any>( );
 
-    const theme = useTheme();
+	const positionX = useSharedValue(0);
+	const positionY = useSharedValue(0);
 
-    function handleCarDetails(car: CarDTOS){
-        navigation.navigate('CarDetails', { car });
-    }
+	const myCarsButtonStyles = useAnimatedStyle(()=>{
+		return{
+			transform: [
+				{ translateX: positionX.value},
+				{ translateY: positionY.value}
+			]
+		}
+	});
 
-    function handleOpenMyCars(car: CarDTOS){
-        navigation.navigate('MyCars');
-    }
+	const onGestureEvent = useAnimatedGestureHandler({
+		onStart(_, ctx:any){
+			ctx.positionX = positionX.value;
+			ctx.positionY = positionX.value;
+		},
 
-   
+		onActive(event, ctx: any){
+			positionX.value = ctx.positionX + event.translationX;
+			positionY.value = ctx.positiony + event.translationY
+		},
+		onEnd(){
+			positionX.value = withSpring(0);
+			positionY.value = withSpring(0);
+		}
+	})
 
-    useEffect(()=>{
-        async function fetchCars(){
-            try{
-                const response = await api.get("/cars");
-                console.log();
-                setCars(response.data);
-            }catch(error){
-                console.log(error);
-            }finally{
-                setLoading(false);
-            }
-        }
-        fetchCars();
-    },[]);
+	const theme = useTheme();
 
-    return(
-        <Container>
-            <StatusBar 
-                barStyle="light-content"
-                backgroundColor="transparent"
-                translucent
-            />
-            <Header>
-                <HeaderContent>
-                    <Logo 
-                        width={RFValue(108)}
-                        height={RFValue(12)}
-                    />
-                    <TotalCars>
-                        Total de {cars.length} carros
-                    </TotalCars>
-                </HeaderContent>
-            </Header>
+	function handleCarDetails(car: CarDTOS){
+		navigation.navigate('CarDetails', { car });
+	}
 
-            { loading ? <Load/> : 
-                <CarList
-                    data={cars}
-                    keyExtractor={item => item.id}
-                    renderItem={({item}) => <Car data={item} onPress={()=>handleCarDetails(item)}/>}
-                />
-            }
-            <MyCarsButton onPress={handleOpenMyCars}>
-                <Ionicons 
-                    name="ios-car-sport"
-                    size={32}
-                    color={theme.colors.shape}
-                />
-            </MyCarsButton>
-        </Container>
-    )
+	function handleOpenMyCars(car: CarDTOS){
+		navigation.navigate('MyCars');
+	}   
+
+	useEffect(()=>{
+		async function fetchCars(){
+			try{
+				const response = await api.get("/cars");
+				console.log();
+				setCars(response.data);
+			}catch(error){
+				console.log(error);
+			}finally{
+				setLoading(false);
+			}
+		}
+		fetchCars();
+	},[]);
+
+	return(
+		<Container>
+			<StatusBar 
+				barStyle="light-content"
+				backgroundColor="transparent"
+				translucent
+			/>
+			<Header>
+				<HeaderContent>
+					<Logo 
+						width={RFValue(108)}
+						height={RFValue(12)}
+					/>
+					<TotalCars>
+						Total de {cars.length} carros
+					</TotalCars>
+				</HeaderContent>
+			</Header>
+
+			{ loading ? <Load/> : 
+				<CarList
+					data={cars}
+					keyExtractor={item => item.id}
+					renderItem={({item}) => <Car data={item} onPress={()=>handleCarDetails(item)}/>}
+				/>
+			}
+			<PanGestureHandler onGestureEvent={onGestureEvent}
+			>
+				<Animated.View
+					style={[
+							myCarsButtonStyles,
+							{
+								position: 'absolute',
+								bottom: 13,
+								right: 22
+							}
+						]}
+				>
+					<ButtonAnimated 
+						onPress={handleOpenMyCars}
+						style={[styles.button, { backgroundColor: theme.colors.main}]}
+					>
+						<Ionicons 
+							name="ios-car-sport"
+							size={32}
+							color={theme.colors.shape}
+						/>
+					</ButtonAnimated>
+				</Animated.View>
+			</PanGestureHandler>
+		</Container>
+	)
 }
+
+const styles = StyleSheet.create({
+	button: {
+		width:60,
+		height: 60,
+		borderRadius: 30,
+		justifyContent: 'center',
+		alignItems: 'center'
+	}
+})
