@@ -1,4 +1,4 @@
-import React , {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { ImageBackground, StatusBar, StyleSheet, BackHandler } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
