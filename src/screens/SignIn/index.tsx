@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native'; 
 import * as Yup from 'yup';
+import { useAuth } from '../../hooks/auth';
 
 import { 
   StatusBar,
@@ -26,19 +27,21 @@ import {
 
 export function SignIn(){
 
-  const [mail, setMail] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
+  const { signIn } = useAuth();
 
   async function handleSignIn(){
     try{
       const schema = Yup.object().shape({
-        mail: Yup.string().required('E-mail obrigatório').email('Digite um e-mail válido'),
+        email: Yup.string().required('E-mail obrigatório').email('Digite um e-mail válido'),
         password: Yup.string().required('A senha é obrigatoria')
       });
-      await schema.validate({mail, password })
+      await schema.validate({email, password })
       Alert.alert('tudo OK');
-      //fazer login
+      
+      signIn( { email, password } );
     }catch(error){
       if(error instanceof Yup.ValidationError){
         Alert.alert('Opa', error.message);
@@ -78,8 +81,8 @@ export function SignIn(){
               keyboardType='email-address'
               autoCorrect={false}
               autoCapitalize='none'
-              onChangeText={setMail}
-              value={mail}
+              onChangeText={setEmail}
+              value={email}
             />
             <PasswordInput
               iconName='lock'
