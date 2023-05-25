@@ -2,6 +2,8 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
 import Animated, {useAnimatedStyle, useSharedValue, withTiming, interpolate, Extrapolate, runOnJS} from 'react-native-reanimated';
 
+import { SignIn } from '../SignIn';
+
 import BrandSvg from '../../assets/brand.svg'
 import LogoSvg from '../../assets/logo.svg'
 
@@ -44,7 +46,7 @@ export function Splash(){
   });
 
   function statApp(){
-    navigation.navigate('Home');
+    navigation.navigate('SignIn');
   }
 
   useEffect(()=>{
